@@ -158,9 +158,6 @@ Generator.prototype.bootstrapFiles = function bootstrapFiles() {
     this.copy('images/glyphicons-halflings.png', 'app/images/glyphicons-halflings.png');
     this.copy('images/glyphicons-halflings-white.png', 'app/images/glyphicons-halflings-white.png');
   } else {
-    if (this.bootstrap) {
-      files.push('bootstrap.css');
-    }
     files.push('main.css');
   }
 
@@ -178,6 +175,15 @@ Generator.prototype.bootstrapFiles = function bootstrapFiles() {
       }),
       searchPath: '.tmp'
     });
+    if (this.bootstrap && !sass) {
+      this.indexFile = appendFilesToJade({
+        html: this.indexFile,
+        fileType: 'css',
+        optimizedPath: 'bower_components/bootstrap-sass/dist/css/bootstrap.css',
+        sourceFileList: ['bower_components/bootstrap-sass/dist/css/bootstrap.css'],
+        searchPath: '.app'
+      });
+    }
   } else {
     this.indexFile = this.appendFiles({
       html: this.indexFile,
@@ -188,6 +194,15 @@ Generator.prototype.bootstrapFiles = function bootstrapFiles() {
       }),
       searchPath: '.tmp'
     });
+    if (this.bootstrap && !sass) {
+      this.indexFile = this.appendFiles({
+        html: this.indexFile,
+        fileType: 'css',
+        optimizedPath: 'bower_components/bootstrap-sass/dist/css/bootstrap.css',
+        sourceFileList: ['bower_components/bootstrap-sass/dist/css/bootstrap.css'],
+        searchPath: '.app'
+      });
+    }
   }
 };
 
@@ -202,19 +217,18 @@ Generator.prototype.bootstrapJs = function bootstrapJs() {
   }
 
   list = [
-    'bower_components/bootstrap-sass/js/bootstrap-affix.js',
-    'bower_components/bootstrap-sass/js/bootstrap-alert.js',
-    'bower_components/bootstrap-sass/js/bootstrap-dropdown.js',
-    'bower_components/bootstrap-sass/js/bootstrap-tooltip.js',
-    'bower_components/bootstrap-sass/js/bootstrap-modal.js',
-    'bower_components/bootstrap-sass/js/bootstrap-transition.js',
-    'bower_components/bootstrap-sass/js/bootstrap-button.js',
-    'bower_components/bootstrap-sass/js/bootstrap-popover.js',
-    'bower_components/bootstrap-sass/js/bootstrap-typeahead.js',
-    'bower_components/bootstrap-sass/js/bootstrap-carousel.js',
-    'bower_components/bootstrap-sass/js/bootstrap-scrollspy.js',
-    'bower_components/bootstrap-sass/js/bootstrap-collapse.js',
-    'bower_components/bootstrap-sass/js/bootstrap-tab.js'
+    'bower_components/bootstrap-sass/js/affix.js',
+    'bower_components/bootstrap-sass/js/alert.js',
+    'bower_components/bootstrap-sass/js/dropdown.js',
+    'bower_components/bootstrap-sass/js/tooltip.js',
+    'bower_components/bootstrap-sass/js/modal.js',
+    'bower_components/bootstrap-sass/js/transition.js',
+    'bower_components/bootstrap-sass/js/button.js',
+    'bower_components/bootstrap-sass/js/popover.js',
+    'bower_components/bootstrap-sass/js/carousel.js',
+    'bower_components/bootstrap-sass/js/scrollspy.js',
+    'bower_components/bootstrap-sass/js/collapse.js',
+    'bower_components/bootstrap-sass/js/tab.js'
   ];
   // Wire Twitter Bootstrap plugins
   if (this.jade) {
