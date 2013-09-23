@@ -81,16 +81,34 @@ Generator.prototype.askForBootstrap = function askForBootstrap() {
     message: 'Would you like to include Twitter Bootstrap?',
     default: true
   }, {
-    type: 'confirm',
-    name: 'compassBootstrap',
-    message: 'Would you like to use the SCSS version of Twitter Bootstrap with the Compass CSS Authoring Framework?',
-    default: true,
+    type: 'list',
+    name: 'bootstrapType',
+    message: 'How would you like to implement Twitter Bootstrap?',
+    choices: [{
+      name: 'Use the Bootstrap LESS Framework and LESS middleware',
+      value: 'less'
+    }, {
+      name: 'Use Bootstrap-SASS, with the Compass CSS Authoring Framework',
+      value: 'sass'
+    }, {
+      name: 'Use vanilla Bootstrap Framework with precompiled CSS',
+      value: 'css'
+    }],
     when: function (props) {
       return props.bootstrap;
     }
   }], function (props) {
     this.bootstrap = props.bootstrap;
-    this.compassBootstrap = props.compassBootstrap;
+    this.compassBootstrap = this.lessBootstrap = this.cssBoostrap = false;
+    if (this.bootstrap) {
+      if (props.bootstrapType === 'less') {
+        this.lessBootstrap = true;
+      } else if (props.bootstrapType === 'sass') {
+        this.compassBootstrap = true;
+      } else {
+        this.cssBoostrap = true;
+      }
+    }
 
     cb();
   }.bind(this));
@@ -149,11 +167,15 @@ Generator.prototype.prepareIndexFile = function prepareIndexFile() {
 }
 // Waiting a more flexible solution for #138
 Generator.prototype.bootstrapFiles = function bootstrapFiles() {
-  var sass = this.compassBootstrap;
+  var less = this.lessBootstrap,
+      sass = this.compassBootstrap,
+      css = this.cssBoostrap;
   var files = [];
-  var source = 'styles/' + ( sass ? 'scss/' : 'css/' );
+  var source = 'styles/' + ( less ? 'less/' :  sass ? 'scss/' : 'css/' );
 
-  if (sass) {
+  if (less) {
+    files.push('main.less');
+  } else if (sass) {
     files.push('main.scss');
     this.copy('images/glyphicons-halflings.png', 'app/images/glyphicons-halflings.png');
     this.copy('images/glyphicons-halflings-white.png', 'app/images/glyphicons-halflings-white.png');
