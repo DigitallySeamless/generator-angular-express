@@ -40,15 +40,15 @@ var Generator = module.exports = function Generator(args, options) {
     args.push('--minsafe');
   }
 
-  this.hookFor('angularexpress:common', {
+  this.hookFor('angular-express:common', {
     args: args
   });
 
-  this.hookFor('angularexpress:main', {
+  this.hookFor('angular-express:main', {
     args: args
   });
 
-  this.hookFor('angularexpress:controller', {
+  this.hookFor('angular-express:controller', {
     args: args
   });
 
