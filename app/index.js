@@ -81,16 +81,36 @@ Generator.prototype.askForBootstrap = function askForBootstrap() {
     message: 'Would you like to include Twitter Bootstrap?',
     default: true
   }, {
-    type: 'confirm',
-    name: 'compassBootstrap',
-    message: 'Would you like to use the SCSS version of Twitter Bootstrap with the Compass CSS Authoring Framework?',
-    default: true,
+    type: 'list',
+    name: 'bootstrapType',
+    message: 'How would you like to implement Twitter Bootstrap?',
+    choices: [{
+      name: 'Use the Bootstrap LESS Framework and LESS middleware',
+      value: 'less'
+    }, {
+      name: 'Use Bootstrap-SASS, with the Compass CSS Authoring Framework',
+      value: 'sass'
+    }, {
+      name: 'Use vanilla Bootstrap Framework with precompiled CSS',
+      value: 'css'
+    }],
     when: function (props) {
       return props.bootstrap;
     }
   }], function (props) {
     this.bootstrap = props.bootstrap;
-    this.compassBootstrap = props.compassBootstrap;
+    this.compassBootstrap = this.lessBootstrap = this.cssBoostrap = false;
+    if (this.bootstrap) {
+      if (props.bootstrapType === 'less') {
+        this.lessBootstrap = true;
+      } else if (props.bootstrapType === 'sass') {
+        this.compassBootstrap = true;
+      } else {
+        this.cssBoostrap = true;
+      }
+    } else {
+      this.cssBootstrap = true;
+    }
 
     cb();
   }.bind(this));
@@ -149,11 +169,15 @@ Generator.prototype.prepareIndexFile = function prepareIndexFile() {
 }
 // Waiting a more flexible solution for #138
 Generator.prototype.bootstrapFiles = function bootstrapFiles() {
-  var sass = this.compassBootstrap;
+  var less = this.lessBootstrap,
+      sass = this.compassBootstrap,
+      css = this.cssBoostrap;
   var files = [];
-  var source = 'styles/' + ( sass ? 'scss/' : 'css/' );
+  var source = 'styles/' + ( less ? 'less/' :  sass ? 'scss/' : 'css/' );
 
-  if (sass) {
+  if (less) {
+    files.push('main.less');
+  } else if (sass) {
     files.push('main.scss');
     this.copy('images/glyphicons-halflings.png', 'app/images/glyphicons-halflings.png');
     this.copy('images/glyphicons-halflings-white.png', 'app/images/glyphicons-halflings-white.png');
@@ -162,48 +186,36 @@ Generator.prototype.bootstrapFiles = function bootstrapFiles() {
   }
 
   files.forEach(function (file) {
-    this.copy(source + file, 'app/styles/' + file);
+    this.template(source + file, 'app/styles/' + file);
   }.bind(this));
 
-  if (this.jade) {
-    this.indexFile = appendFilesToJade({
+  var routeAppend = function routeAppend(cond, hash, gener) {
+    if (cond) {
+      return appendFilesToJade(hash);
+    } else {
+      return gener.appendFiles(hash);
+    }
+  };
+
+  if (this.bootstrap && css) {
+    this.indexFile = routeAppend(this.jade, {
       html: this.indexFile,
       fileType: 'css',
-      optimizedPath: 'styles/main.css',
-      sourceFileList: files.map(function (file) {
-        return 'styles/' + file.replace('.scss', '.css');
-      }),
-      searchPath: '.tmp'
-    });
-    if (this.bootstrap && !sass) {
-      this.indexFile = appendFilesToJade({
-        html: this.indexFile,
-        fileType: 'css',
-        optimizedPath: 'bower_components/bootstrap-sass/dist/css/bootstrap.css',
-        sourceFileList: ['bower_components/bootstrap-sass/dist/css/bootstrap.css'],
-        searchPath: '.app'
-      });
-    }
-  } else {
-    this.indexFile = this.appendFiles({
-      html: this.indexFile,
-      fileType: 'css',
-      optimizedPath: 'styles/main.css',
-      sourceFileList: files.map(function (file) {
-        return 'styles/' + file.replace('.scss', '.css');
-      }),
-      searchPath: '.tmp'
-    });
-    if (this.bootstrap && !sass) {
-      this.indexFile = this.appendFiles({
-        html: this.indexFile,
-        fileType: 'css',
-        optimizedPath: 'bower_components/bootstrap-sass/dist/css/bootstrap.css',
-        sourceFileList: ['bower_components/bootstrap-sass/dist/css/bootstrap.css'],
-        searchPath: '.app'
-      });
-    }
+      optimizedPath: 'bower_components/bootstrap/dist/css/bootstrap.css',
+      sourceFileList: ['bower_components/bootstrap/dist/css/bootstrap.css'],
+      searchPath: '.app'
+    }, this);
   }
+
+  this.indexFile = routeAppend(this.jade, {
+    html: this.indexFile,
+    fileType: 'css',
+    optimizedPath: 'styles/main.css',
+    sourceFileList: files.map(function (file) {
+      return 'styles/' + file.replace(/\.less|\.scss/gi, '.css');
+    }),
+    searchPath: '.tmp'
+  }, this);
 };
 
 function appendScriptsJade(jade, optimizedPath, sourceFileList, attrs) {
@@ -216,19 +228,21 @@ Generator.prototype.bootstrapJs = function bootstrapJs() {
     return;  // Skip if disabled.
   }
 
+  var sass = (this.compassBootstrap ? '-sass' : '');
+
   list = [
-    'bower_components/bootstrap-sass/js/affix.js',
-    'bower_components/bootstrap-sass/js/alert.js',
-    'bower_components/bootstrap-sass/js/dropdown.js',
-    'bower_components/bootstrap-sass/js/tooltip.js',
-    'bower_components/bootstrap-sass/js/modal.js',
-    'bower_components/bootstrap-sass/js/transition.js',
-    'bower_components/bootstrap-sass/js/button.js',
-    'bower_components/bootstrap-sass/js/popover.js',
-    'bower_components/bootstrap-sass/js/carousel.js',
-    'bower_components/bootstrap-sass/js/scrollspy.js',
-    'bower_components/bootstrap-sass/js/collapse.js',
-    'bower_components/bootstrap-sass/js/tab.js'
+    'bower_components/bootstrap' + sass + '/js/affix.js',
+    'bower_components/bootstrap' + sass + '/js/alert.js',
+    'bower_components/bootstrap' + sass + '/js/dropdown.js',
+    'bower_components/bootstrap' + sass + '/js/tooltip.js',
+    'bower_components/bootstrap' + sass + '/js/modal.js',
+    'bower_components/bootstrap' + sass + '/js/transition.js',
+    'bower_components/bootstrap' + sass + '/js/button.js',
+    'bower_components/bootstrap' + sass + '/js/popover.js',
+    'bower_components/bootstrap' + sass + '/js/carousel.js',
+    'bower_components/bootstrap' + sass + '/js/scrollspy.js',
+    'bower_components/bootstrap' + sass + '/js/collapse.js',
+    'bower_components/bootstrap' + sass + '/js/tab.js'
   ];
   // Wire Twitter Bootstrap plugins
   if (this.jade) {

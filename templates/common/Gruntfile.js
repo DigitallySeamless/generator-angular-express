@@ -42,6 +42,10 @@ module.exports = function (grunt) {
       compass: {
         files: ['<%%= yeoman.app %>/styles/{,*/}*.{scss,sass}'],
         tasks: ['compass:server', 'autoprefixer']
+      },<% } %><% if (lessBootstrap) { %>
+      less: {
+        files: ['<%%= yeoman.app %>/styles/{,*/}*.less'],
+        tasks: ['less:devel']
       },<% } %><% if (jade) { %>
       jade: {
         files: ['<%%= yeoman.app %>/jade/**/*.jade'],
@@ -121,7 +125,7 @@ module.exports = function (grunt) {
     },
     open: {
       server: {
-        url: 'http://localhost:<%%= connect.options.port %>'
+        path: 'http://localhost:<%%= connect.options.port %>'
       }
     },
     clean: {
@@ -169,7 +173,32 @@ module.exports = function (grunt) {
           ext: '.js'
         }]
       }
-    },<% if (compassBootstrap) { %>
+    },<% if (lessBootstrap) { %>
+    less: {
+      devel: {
+        options: {
+          paths: [
+            '<%%= yeoman.app %>/styles',
+            '<%%= yeoman.app %>/bower_components/bootstrap/less'
+          ]
+        },
+        files: {
+          ".tmp/styles/main.css": "<%%= yeoman.app %>/styles/main.less"
+        }
+      },
+      dist: {
+        options: {
+          paths: [
+            '<%%= yeoman.app %>/styles',
+            '<%%= yeoman.app %>/bower_components/bootstrap/less'
+          ],
+          yuicompress: true
+        },
+        files: {
+          ".tmp/styles/main.css": "<%%= yeoman.app %>/styles/main.less"
+        }
+      }
+    },<% } %><% if (compassBootstrap) { %>
     compass: {
       options: {
         sassDir: '<%%= yeoman.app %>/styles',
@@ -331,19 +360,22 @@ module.exports = function (grunt) {
     concurrent: {
       server: [<% if (jade) { %>
         'jade',<% } %>
-        'coffee:dist',<% if (compassBootstrap) { %>
+        'coffee:dist',<% if (lessBootstrap) { %>
+        'less:devel',<% } %><% if (compassBootstrap) { %>
         'compass:server',<% } %>
         'copy:styles'
       ],
       test: [<% if (jade) { %>
         'jade',<% } %>
-        'coffee',<% if (compassBootstrap) { %>
+        'coffee',<% if (lessBootstrap) { %>
+        'less',<% } %><% if (compassBootstrap) { %>
         'compass',<% } %>
         'copy:styles'
       ],
       dist: [<% if (jade) { %>
         'jade',<% } %>
-        'coffee',<% if (compassBootstrap) { %>
+        'coffee',<% if (lessBootstrap) { %>
+        'less:dist',<% } %><% if (compassBootstrap) { %>
         'compass:dist',<% } %>
         'copy:styles',
         'imagemin',
