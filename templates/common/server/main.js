@@ -15,7 +15,9 @@ app.use(function (req, res) {
 });<% if (socketIO) { %>
 
 io.sockets.on('connection', function (socket) {
-  socket.emit('awesomeThings', {awesomeThings: 'socket.IO'});
+  socket.on('getThings', function(fn) {
+    fn({awesomeThings: 'Socket.IO'});
+  });
   socket.on('awesomeThingsReceived', function (data) {
     console.log(data);
   });
