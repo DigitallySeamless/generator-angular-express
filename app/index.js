@@ -369,6 +369,10 @@ Generator.prototype.createIndexHtml = function createIndexHtml() {
   }
 };
 
+Generator.prototype.createExpressServer = function createExpressServer() {
+  this.template('../../templates/common/server/main.js', 'server/main.js');
+};
+
 Generator.prototype.packageFiles = function () {
   this.template('../../templates/common/_bower.json', 'bower.json');
   this.template('../../templates/common/_package.json', 'package.json');
