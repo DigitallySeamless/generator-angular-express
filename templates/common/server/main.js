@@ -15,8 +15,8 @@ app.use(function (req, res) {
 });<% if (socketIO) { %>
 
 io.sockets.on('connection', function (socket) {
-  socket.emit('news', { hello: 'world' });
-  socket.on('my other event', function (data) {
+  socket.emit('awesomeThings', {awesomeThings: 'socket.IO'});
+  socket.on('awesomeThingsReceived', function (data) {
     console.log(data);
   });
 });
