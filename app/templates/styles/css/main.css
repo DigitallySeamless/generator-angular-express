@@ -1,10 +1,22 @@
+html, body {
+    margin: 0;
+    padding: 0px;
+}
 body {
     background: #fafafa;
     font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
     color: #333;
 }
 
-.hero-unit {
+/* Main Content */
+<% if (bootstrap) { %>.main.container {
+    margin-top: 40px;
+}
+<% } else { %>#wrap {
+    margin: 0 10px;
+    max-width: 1600px;
+}
+.jumbotron {
     margin: 50px auto 0 auto;
     width: 300px;
     font-size: 18px;
@@ -15,8 +27,31 @@ body {
     padding: 60px;
 }
 
-.hero-unit h1 {
+.jumbotron h1 {
     font-size: 60px;
     line-height: 1;
     letter-spacing: -1px;
 }
+<% } %>
+/* Sticky Footer */
+html, body {
+    height: 100%;
+}
+
+#wrap {
+    min-height: 100%;
+    height: auto !important;
+    height: 100%;
+    margin: 0 auto -40px;
+}
+
+#push, footer {
+    height: <% if (bootstrap) { print("80"); } else { print("40"); } %>px;
+}
+
+footer {
+    margin-top: 40px;
+    padding: 32px 0px;
+    background: #f0f0f0;
+}
+/* End Sticky Footer */
