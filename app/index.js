@@ -163,6 +163,20 @@ Generator.prototype.askForJade = function askForJade() {
   }.bind(this));
 };
 
+Generator.prototype.askForSocketIO = function askForSocketIO() {
+  var cb = this.async();
+
+  this.prompt([{
+    type: 'confirm',
+    name: 'socketIO',
+    message: 'Would you like to include Socket.IO with your Express Server?',
+    default: true
+  }], function (props) {
+    this.socketIO = props.socketIO;
+    cb();
+  }.bind(this));
+};
+
 Generator.prototype.prepareIndexFile = function prepareIndexFile() {
   this.indexFile = this.engine(this.read('../../templates/common/index.' + (this.jade ? "jade" : "html")),
       this);
@@ -249,6 +263,20 @@ Generator.prototype.bootstrapJs = function bootstrapJs() {
     this.indexFile = appendScriptsJade(this.indexFile, 'scripts/plugins.js', list);
   } else {
     this.indexFile = this.appendScripts(this.indexFile, 'scripts/plugins.js', list);
+  }
+};
+
+Generator.prototype.socketIOJS = function socketIOJS() {
+  if (!this.socketIO) {
+    return;
+  }
+
+  var socketSrc = ['/socket.io/socket.io.js'];
+
+  if (this.jade) {
+    this.indexFile = appendScriptsJade(this.indexFile, 'scripts/plugins.js', socketSrc);
+  } else {
+    this.indexFile = this.appendScripts(this.indexFile, 'scripts/plugins.js', socketSrc);
   }
 };
 
