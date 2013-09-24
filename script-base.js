@@ -60,6 +60,12 @@ function Generator() {
     sourceRoot += '-min';
   }
 
+  if (require(path.join(process.cwd(), 'package.json')).dependencies.hasOwnProperty('socket.io')) {
+    this.socketIO = true;
+  } else {
+    this.socketIO = false;
+  }
+
   this.sourceRoot(path.join(__dirname, sourceRoot));
 }
 

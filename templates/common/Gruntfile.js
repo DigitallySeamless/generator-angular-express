@@ -86,10 +86,15 @@ module.exports = function (grunt) {
       },
       proxies: [ // Local
         {
-            context: '/api',
-            host: 'localhost',
-            port: 9001
-        }
+          context: '/api',
+          host: 'localhost',
+          port: 9001
+        }<% if (socketIO) { %>,
+        {
+          context: '/socket.io',
+          host: 'localhost',
+          port: 9001
+        }<% } %>
       ],
       livereload: {
         options: {
